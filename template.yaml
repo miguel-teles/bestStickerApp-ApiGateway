@@ -1,0 +1,61 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  best-stickerapp-api
+
+  Sample SAM Template for best-stickerapp-api
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Resources:
+  BestStickerAppApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: BestStickerAppApi
+      Description: Shared API Gateway
+
+  ConverterResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt BestStickerAppApi.RootResourceId
+      PathPart: converter
+      RestApiId: !Ref BestStickerAppApi
+
+  PostMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      ResourceId: !Ref ConverterResource
+      RestApiId: !Ref BestStickerAppApi
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FuncArn}/invocations
+          - FuncArn: !ImportValue StickerImageConverterFunction
+
+  LambdaInvocationPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        !ImportValue StickerImageConverterFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Sub: "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${BestStickerAppApi}/*/*/*"
+
+#About the Outputs fragment, they can:
+# - Be shown in the AWS Console
+# - Be used by other stacks via ImportValue
+# - Be helpful for humans (like URLs or ARNs)
+
+#'BestStickerAppApiId:' - This is the name of the output. It’s an internal name you give for reference. You can name it whatever makes sense, like ApiId, SharedApiRef, etc.
+#'Description:' - This is just a human-readable description. It will appear in the CloudFormation Console when you look at the stack outputs. It helps you understand what this output is.
+#'Value' - This is the actual value that CloudFormation will output.
+#'Export' - This is the global export name that other stacks will use to ImportValue.
+Outputs:
+  BestStickerAppApiId:
+    Description: API O ID da api
+    Value: !Ref BestStickerAppApi
+    Export:
+      Name: BestStickerAppApiId
