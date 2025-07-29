@@ -13,6 +13,20 @@ Resources:
     Properties:
       Name: BestStickerAppApi
       Description: Shared API Gateway
+
+  StickerXAPIKeyAuthorizer:
+    Type: AWS::ApiGateway::Authorizer
+    Properties:
+      Name: StickerXAPIKeyAuthorizer
+      RestApiId: !Ref BestStickerAppApi
+      Type: TOKEN
+      AuthorizerUri:
+        !Sub
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuthorizerArn}/invocations
+          - AuthorizerArn: !ImportValue StickerXAPIKeyAuthorizerFunction
+      IdentitySource: method.request.header.x-api-key
+      AuthorizerResultTtlInSeconds: 300
+
   #/converter endpoint
   ConverterResource:
     Type: AWS::ApiGateway::Resource
@@ -23,7 +37,8 @@ Resources:
   PostMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      AuthorizationType: NONE
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref StickerXAPIKeyAuthorizer
       HttpMethod: POST
       ResourceId: !Ref ConverterResource
       RestApiId: !Ref BestStickerAppApi
@@ -43,7 +58,8 @@ Resources:
   PostMethodNotificationReceiver:
     Type: AWS::ApiGateway::Method
     Properties:
-      AuthorizationType: NONE
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref StickerXAPIKeyAuthorizer
       HttpMethod: POST
       ResourceId: !Ref NotificationReceiverResource
       RestApiId: !Ref BestStickerAppApi
@@ -76,6 +92,16 @@ Resources:
       SourceArn:
         Fn::Sub: "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${BestStickerAppApi}/*/*/*"
 
+  LambdaInvokePermissionStickerXAPIKeyAuthorizer:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        !ImportValue StickerXAPIKeyAuthorizerFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Sub: "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${BestStickerAppApi}/*"
+
 #About the Outputs fragment, they can:
 # - Be shown in the AWS Console
 # - Be used by other stacks via ImportValue
@@ -87,7 +113,7 @@ Resources:
 #'Export' - This is the global export name that other stacks will use to ImportValue.
 Outputs:
   BestStickerAppApiId:
-    Description: API O ID da api
+    Description: O ID da api
     Value: !Ref BestStickerAppApi
     Export:
       Name: BestStickerAppApiId
