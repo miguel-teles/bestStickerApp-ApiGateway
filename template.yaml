@@ -70,26 +70,26 @@ Resources:
           - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FuncArn}/invocations
           - FuncArn: !ImportValue StickerExceptionReceiverFunction
 
-  StickerLastVersionTextResource:
+  StickerLatestVersionTextResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       ParentId: !GetAtt BestStickerAppApi.RootResourceId
       PathPart: latest-version
       RestApiId: !Ref BestStickerAppApi
-  PostMethodStickerLastVersionText:
+  PostMethodStickerLatestVersionText:
     Type: AWS::ApiGateway::Method
     Properties:
       AuthorizationType: CUSTOM
       AuthorizerId: !Ref StickerXAPIKeyAuthorizer
       HttpMethod: GET
-      ResourceId: !Ref StickerLastVersionTextResource
+      ResourceId: !Ref StickerLatestVersionTextResource
       RestApiId: !Ref BestStickerAppApi
       Integration:
-        IntegrationHttpMethod: GET
+        IntegrationHttpMethod: POST
         Type: AWS_PROXY
         Uri: !Sub
           - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FuncArn}/invocations
-          - FuncArn: !ImportValue StickerLastVersionTextFunction
+          - FuncArn: !ImportValue StickerLatestVersionTextFunction
 
   LambdaInvocationPermission:
     Type: AWS::Lambda::Permission
@@ -121,12 +121,12 @@ Resources:
       SourceArn:
         Fn::Sub: "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${BestStickerAppApi}/*"
 
-  LambdaInvokePermissionStickerLastVersionText:
+  LambdaInvokePermissionStickerLatestVersionText:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
       FunctionName:
-        !ImportValue StickerLastVersionTextFunction
+        !ImportValue StickerLatestVersionTextFunction
       Principal: apigateway.amazonaws.com
       SourceArn:
         Fn::Sub: "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${BestStickerAppApi}/*"
