@@ -69,7 +69,7 @@ Resources:
         Uri: !Sub
           - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FuncArn}/invocations
           - FuncArn: !ImportValue StickerExceptionReceiverFunction
-
+  #/latest-version
   StickerLatestVersionTextResource:
     Type: AWS::ApiGateway::Resource
     Properties:
@@ -79,8 +79,7 @@ Resources:
   PostMethodStickerLatestVersionText:
     Type: AWS::ApiGateway::Method
     Properties:
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref StickerXAPIKeyAuthorizer
+      AuthorizationType: NONE
       HttpMethod: GET
       ResourceId: !Ref StickerLatestVersionTextResource
       RestApiId: !Ref BestStickerAppApi
@@ -90,6 +89,28 @@ Resources:
         Uri: !Sub
           - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FuncArn}/invocations
           - FuncArn: !ImportValue StickerLatestVersionTextFunction
+
+  #/download-link
+  StickerDownloadAppUriResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt BestStickerAppApi.RootResourceId
+      PathPart: download-link
+      RestApiId: !Ref BestStickerAppApi
+  PostMethodStickerDownloadAppUri:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref StickerXAPIKeyAuthorizer
+      HttpMethod: GET
+      ResourceId: !Ref StickerDownloadAppUriResource
+      RestApiId: !Ref BestStickerAppApi
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FuncArn}/invocations
+          - FuncArn: !ImportValue StickerDownloadAppUriFunction
 
   LambdaInvocationPermission:
     Type: AWS::Lambda::Permission
