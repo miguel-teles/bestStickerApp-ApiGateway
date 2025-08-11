@@ -46,7 +46,7 @@ Resources:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
         Uri: !Sub
-          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FuncArn}/invocations
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FuncArn}:prod/invocations
           - FuncArn: !ImportValue StickerImageConverterFunction
   #/exception-notify
   NotificationReceiverResource:
