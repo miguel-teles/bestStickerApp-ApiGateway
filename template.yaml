@@ -8,17 +8,17 @@ Description: >
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Resources:
 
-  BestStickerAppApi:
+  BestStickerAppApiDev:
     Type: AWS::ApiGateway::RestApi
     Properties:
-      Name: BestStickerAppApi
+      Name: BestStickerAppApiDev
       Description: Shared API Gateway
 
   StickerXAPIKeyAuthorizer:
     Type: AWS::ApiGateway::Authorizer
     Properties:
       Name: StickerXAPIKeyAuthorizer
-      RestApiId: !Ref BestStickerAppApi
+      RestApiId: !Ref BestStickerAppApiDev
       Type: TOKEN
       AuthorizerUri:
         !Sub
@@ -31,9 +31,9 @@ Resources:
   ConverterResource:
     Type: AWS::ApiGateway::Resource
     Properties:
-      ParentId: !GetAtt BestStickerAppApi.RootResourceId
+      ParentId: !GetAtt BestStickerAppApiDev.RootResourceId
       PathPart: converter
-      RestApiId: !Ref BestStickerAppApi
+      RestApiId: !Ref BestStickerAppApiDev
   PostMethod:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -41,20 +41,20 @@ Resources:
       AuthorizerId: !Ref StickerXAPIKeyAuthorizer
       HttpMethod: POST
       ResourceId: !Ref ConverterResource
-      RestApiId: !Ref BestStickerAppApi
+      RestApiId: !Ref BestStickerAppApiDev
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
         Uri: !Sub
-          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FuncArn}/invocations
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FuncArn}:dev/invocations
           - FuncArn: !ImportValue StickerImageConverterFunction
   #/exception-notify
   NotificationReceiverResource:
     Type: AWS::ApiGateway::Resource
     Properties:
-      ParentId: !GetAtt BestStickerAppApi.RootResourceId
+      ParentId: !GetAtt BestStickerAppApiDev.RootResourceId
       PathPart: exception-notification
-      RestApiId: !Ref BestStickerAppApi
+      RestApiId: !Ref BestStickerAppApiDev
   PostMethodNotificationReceiver:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -62,7 +62,7 @@ Resources:
       AuthorizerId: !Ref StickerXAPIKeyAuthorizer
       HttpMethod: POST
       ResourceId: !Ref NotificationReceiverResource
-      RestApiId: !Ref BestStickerAppApi
+      RestApiId: !Ref BestStickerAppApiDev
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
@@ -73,16 +73,16 @@ Resources:
   StickerLatestVersionTextResource:
     Type: AWS::ApiGateway::Resource
     Properties:
-      ParentId: !GetAtt BestStickerAppApi.RootResourceId
+      ParentId: !GetAtt BestStickerAppApiDev.RootResourceId
       PathPart: latest-version
-      RestApiId: !Ref BestStickerAppApi
+      RestApiId: !Ref BestStickerAppApiDev
   PostMethodStickerLatestVersionText:
     Type: AWS::ApiGateway::Method
     Properties:
       AuthorizationType: NONE
       HttpMethod: GET
       ResourceId: !Ref StickerLatestVersionTextResource
-      RestApiId: !Ref BestStickerAppApi
+      RestApiId: !Ref BestStickerAppApiDev
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
@@ -94,9 +94,9 @@ Resources:
   StickerDownloadAppUriResource:
     Type: AWS::ApiGateway::Resource
     Properties:
-      ParentId: !GetAtt BestStickerAppApi.RootResourceId
+      ParentId: !GetAtt BestStickerAppApiDev.RootResourceId
       PathPart: download-link
-      RestApiId: !Ref BestStickerAppApi
+      RestApiId: !Ref BestStickerAppApiDev
   PostMethodStickerDownloadAppUri:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -104,7 +104,7 @@ Resources:
       AuthorizerId: !Ref StickerXAPIKeyAuthorizer
       HttpMethod: GET
       ResourceId: !Ref StickerDownloadAppUriResource
-      RestApiId: !Ref BestStickerAppApi
+      RestApiId: !Ref BestStickerAppApiDev
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
@@ -120,7 +120,7 @@ Resources:
         !ImportValue StickerImageConverterFunction
       Principal: apigateway.amazonaws.com
       SourceArn:
-        Fn::Sub: "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${BestStickerAppApi}/*/*/*"
+        Fn::Sub: "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${BestStickerAppApiDev}/*/*/*"
 
   LambdaInvocationPermissionNotificationReceiver:
     Type: AWS::Lambda::Permission
@@ -130,7 +130,7 @@ Resources:
         !ImportValue StickerExceptionReceiverFunction
       Principal: apigateway.amazonaws.com
       SourceArn:
-        Fn::Sub: "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${BestStickerAppApi}/*/*/*"
+        Fn::Sub: "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${BestStickerAppApiDev}/*/*/*"
 
   LambdaInvokePermissionStickerLatestVersionText:
     Type: AWS::Lambda::Permission
@@ -140,7 +140,7 @@ Resources:
         !ImportValue StickerLatestVersionTextFunction
       Principal: apigateway.amazonaws.com
       SourceArn:
-        Fn::Sub: "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${BestStickerAppApi}/*/*/*"
+        Fn::Sub: "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${BestStickerAppApiDev}/*/*/*"
 
   LambdaInvokePermissionStickerXAPIKeyAuthorizer:
     Type: AWS::Lambda::Permission
@@ -150,7 +150,7 @@ Resources:
         !ImportValue StickerXAPIKeyAuthorizerFunction
       Principal: apigateway.amazonaws.com
       SourceArn:
-        Fn::Sub: "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${BestStickerAppApi}/*"
+        Fn::Sub: "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${BestStickerAppApiDev}/*"
 
 #About the Outputs fragment, they can:
 # - Be shown in the AWS Console
@@ -162,8 +162,8 @@ Resources:
 #'Value' - This is the actual value that CloudFormation will output.
 #'Export' - This is the global export name that other stacks will use to ImportValue.
 Outputs:
-  BestStickerAppApiId:
+  BestStickerAppApiDevId:
     Description: O ID da api
-    Value: !Ref BestStickerAppApi
+    Value: !Ref BestStickerAppApiDev
     Export:
-      Name: BestStickerAppApiId
+      Name: BestStickerAppApiDevId
