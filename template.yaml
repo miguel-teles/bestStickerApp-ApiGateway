@@ -22,7 +22,7 @@ Resources:
       Type: TOKEN
       AuthorizerUri:
         !Sub
-          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuthorizerArn}/invocations
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuthorizerArn}:dev/invocations
           - AuthorizerArn: !ImportValue StickerXAPIKeyAuthorizerFunction
       IdentitySource: method.request.header.x-api-key
       AuthorizerResultTtlInSeconds: 300
@@ -143,12 +143,23 @@ Resources:
       SourceArn:
         Fn::Sub: "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${BestStickerAppApiDev}/*/*/*"
 
-  LambdaInvokePermissionStickerXAPIKeyAuthorizer:
+  LambdaInvokePermissionStickerDownloadAppUri:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
       FunctionName:
-        !ImportValue StickerXAPIKeyAuthorizerFunction
+        !ImportValue StickerDownloadAppUriFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Sub: "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${BestStickerAppApi}/*/*/*"
+
+  LambdaInvokePermissionStickerXAPIKeyAuthorizer:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Sub
+        - "${FuncArn}:dev"
+        - FuncArn: !ImportValue StickerXAPIKeyAuthorizerFunction
       Principal: apigateway.amazonaws.com
       SourceArn:
         Fn::Sub: "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${BestStickerAppApiDev}/*"
