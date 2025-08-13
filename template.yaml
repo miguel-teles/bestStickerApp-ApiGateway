@@ -20,8 +20,7 @@ Resources:
       Name: StickerXAPIKeyAuthorizer
       RestApiId: !Ref BestStickerAppApiDev
       Type: TOKEN
-      AuthorizerUri:
-        !Sub
+      AuthorizerUri: !Sub
           - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuthorizerArn}:dev/invocations
           - AuthorizerArn: !ImportValue StickerXAPIKeyAuthorizerFunction
       IdentitySource: method.request.header.x-api-key
@@ -151,7 +150,7 @@ Resources:
         !ImportValue StickerDownloadAppUriFunction
       Principal: apigateway.amazonaws.com
       SourceArn:
-        Fn::Sub: "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${BestStickerAppApi}/*/*/*"
+        Fn::Sub: "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${BestStickerAppApiDev}/*/*/*"
 
   LambdaInvokePermissionStickerXAPIKeyAuthorizer:
     Type: AWS::Lambda::Permission
