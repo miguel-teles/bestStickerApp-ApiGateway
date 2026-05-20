@@ -49,7 +49,7 @@ Resources:
           - FuncArn: !ImportValue StickerImageConverterFunction
 
   #/converter endpoint
-  c:
+  VideoConverterSignedUrlGeneratorResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       ParentId: !GetAtt BestStickerAppApiDev.RootResourceId
