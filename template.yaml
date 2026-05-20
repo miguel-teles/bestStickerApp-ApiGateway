@@ -48,6 +48,28 @@ Resources:
           - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FuncArn}:dev/invocations
           - FuncArn: !ImportValue StickerImageConverterFunction
 
+  #/converter endpoint
+  c:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt BestStickerAppApiDev.RootResourceId
+      PathPart: video-converter-url
+      RestApiId: !Ref BestStickerAppApiDev
+  VideoConverterSignedUrlGeneratorPostMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref StickerXAPIKeyAuthorizer
+      HttpMethod: POST
+      ResourceId: !Ref VideoConverterSignedUrlGeneratorResource
+      RestApiId: !Ref BestStickerAppApiDev
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FuncArn}:dev/invocations
+          - FuncArn: !ImportValue StickerVideoConverterSignedUrlGeneratorFunction
+
   #/exception-notify
   NotificationReceiverResource:
     Type: AWS::ApiGateway::Resource
