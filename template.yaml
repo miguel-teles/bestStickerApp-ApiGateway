@@ -145,13 +145,12 @@ Resources:
       SourceArn:
         Fn::Sub: "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${BestStickerAppApiDev}/*/*/*"
 
-  LambdaInvocationPermissionVideoConverter:
+  LambdaInvocationPermissionVideoConverterSignedUrlGenerator:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
-      FunctionName: !Sub
-        - "${FuncArn}:dev"
-        - FuncArn: !ImportValue StickerVideoConverterFunction
+      FunctionName:
+        !ImportValue StickerVideoConverterSignedUrlGeneratorFunction
       Principal: apigateway.amazonaws.com
       SourceArn:
         Fn::Sub: "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${BestStickerAppApiDev}/*/*/*"
